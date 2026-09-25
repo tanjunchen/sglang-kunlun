@@ -1,18 +1,44 @@
-# SGLang Kunlun
+![SGLang Kunlun Logo](images/sglang-kunlun-logo-v1.png)
 
-SGLang Kunlun is an out-of-tree (OOT) hardware platform plugin for running
-[SGLang](https://github.com/sgl-project/sglang) on Kunlun XPU hardware. It
-registers the Kunlun platform through SGLang entry points and keeps Kunlun-
-specific bootstrap, runtime hooks, and kernels outside the SGLang source tree.
+<p align="center">
+  <a href="#overview"><b>📖 Overview</b></a> |
+  <a href="#quick-start"><b>🚀 Quick Start</b></a> |
+  <a href="#installation"><b>📦 Installation</b></a> |
+  <a href="#architecture"><b>🧩 Architecture</b></a> |
+  <a href="CONTRIBUTING.md"><b>💬 Contributing</b></a>
+</p>
 
-[Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
+<p align="center">
+  <img alt="GitHub License" src="https://img.shields.io/github/license/baidu-baige/sglang-kunlun">
+  <img alt="GitHub Stars" src="https://img.shields.io/github/stars/baidu-baige/sglang-kunlun">
+  <img alt="GitHub Forks" src="https://img.shields.io/github/forks/baidu-baige/sglang-kunlun">
+  <img alt="GitHub Issues" src="https://img.shields.io/github/issues/baidu-baige/sglang-kunlun">
+  <img alt="Python Version" src="https://img.shields.io/badge/python-%3E%3D3.10-blue">
+</p>
 
-## Latest News
+---
 
-- **2026/06** — The `sglang-kunlun` package was created at version `0.1.0`.
+**SGLang Kunlun** (`sglang-kunlun`) is an out-of-tree (OOT) hardware platform
+plugin designed to seamlessly run [SGLang](https://github.com/sgl-project/sglang)
+on the **Kunlun XPU**. It registers the Kunlun platform through SGLang entry
+points and keeps Kunlun-specific bootstrap, runtime hooks, and kernels outside
+the SGLang source tree.
+
+---
+
+## Latest News 🔥
+
+- [2026/09] ✨ **Open-source engineering** — Added governance and community
+  files (code of conduct, security policy, DCO, issue/PR templates,
+  pre-commit, and pytest configuration) aligned with industry-standard
+  open-source practices
+- [2026/06] 🌟 **Initial release of SGLang Kunlun** — The `sglang-kunlun`
+  package was created at version `0.1.0`
 - **Current development** — Kunlun platform registration, runtime bootstrap,
   attention, KV-cache, MoE, quantization, speculative decoding, and
-  disaggregation hooks are maintained in this repository.
+  disaggregation hooks are maintained in this repository
+
+---
 
 ## Overview
 
@@ -27,7 +53,7 @@ The platform activation is conditional: on a machine where `torch_xmlir` is
 available, the plugin activates `KunlunSRTPlatform`; otherwise it returns
 `None` and does not take over platform discovery.
 
-### Key Features
+### ✨ Key Features
 
 - **Out-of-tree integration** — Integrates with SGLang through Python entry
   points and hooks instead of modifying the SGLang source tree.
@@ -46,21 +72,26 @@ available, the plugin activates `KunlunSRTPlatform`; otherwise it returns
 - **OpenAI-compatible serving** — Uses SGLang's OpenAI-compatible server
   interface once the Kunlun platform has been initialized.
 
+---
+
 ## Prerequisites
 
-- Kunlun XPU hardware; the deployment command below targets Kunlun3 P800.
-- Linux with a compatible Kunlun driver and runtime.
-- Kunlun-enabled PyTorch with `torch_xmlir` available.
-- Python `>= 3.10`.
-- A SGLang checkout/runtime and `sgl-kernel` checkout compatible with this
-  repository. The exact SGLang and runtime versions are deployment-specific;
-  keep them aligned with the current branch.
+- **Hardware**: Kunlun XPU (the deployment example below targets Kunlun3 P800)
+- **OS**: Linux with a compatible Kunlun driver and runtime
+- **Software**:
+  - Python `>= 3.10`
+  - Kunlun-enabled PyTorch with `torch_xmlir` available
+  - A SGLang checkout/runtime and `sgl-kernel` checkout compatible with this
+    repository. The exact SGLang and runtime versions are deployment-specific;
+    keep them aligned with the current branch
 
 The repository's Python packaging metadata is in
 [`pyproject.toml`](pyproject.toml), and the test/build dependencies are listed
 in [`requirements.txt`](requirements.txt).
 
-## Installation
+---
+
+## Installation 📦
 
 Set `YOUR_PATH` to the workspace containing `sglang-kunlun` and the compatible
 SGLang runtime, then install this package in editable mode:
@@ -70,12 +101,15 @@ YOUR_PATH=/path/to/your/workspace
 pip install -e "${YOUR_PATH}/sglang-kunlun"
 ```
 
-## Quick Start
+---
 
-### Configure the Runtime
+## Quick Start 🚀
 
-The following environment is the Kunlun startup configuration for the current
-MiMo-V2-Flash W8A8 INT8 example. Replace the paths and model path for your
+### Start an OpenAI-Compatible API Server
+
+Configure the Kunlun runtime environment first. The following values are the
+startup configuration for the current MiMo-V2-Flash W8A8 INT8 example.
+Adjust device visibility and model-specific kernel options for your
 deployment.
 
 ```bash
@@ -98,7 +132,7 @@ export CUDA_GRAPH_OPTIMIZE_STREAM=1
 unset SGLANG_PLATFORM SGLANG_USE_XPU
 ```
 
-### Start the SGLang Server
+Then start the server:
 
 ```bash
 SGLANG_ENABLE_SPEC_V2=1 
@@ -120,12 +154,12 @@ python3 -u -m sglang.launch_server \
     --mem-fraction-static 0.85
 ```
 
-The command above is an example deployment configuration. In particular,
-`--model-path`, `--tp-size`, memory allocation, attention backend, and
-speculative-decoding settings must match the model and Kunlun runtime installed
-on the target machine.
+> **Note**: The command above is an example deployment configuration.
+> `--model-path`, `--tp-size`, memory allocation, attention backend, and
+> speculative-decoding settings must match the model and Kunlun runtime
+> installed on the target machine.
 
-### Check the OpenAI-Compatible Endpoint
+### Send a Request
 
 List the model identifier exposed by the running server before sending a chat
 request:
@@ -146,6 +180,8 @@ curl http://localhost:8806/v1/chat/completions \
   }'
 ```
 
+---
+
 ## Compatibility Notes
 
 This repository is a platform plugin rather than a complete SGLang
@@ -160,6 +196,8 @@ is not a complete compatibility matrix.
 | DeepSeek-V4 | DeepSeek-V4 model and KV-cache compatibility hooks | Runtime acceptance must be verified with the target SGLang/Kunlun versions. |
 | Other SGLang models | General platform, attention, KV-cache, MoE, and quantization hooks | Validate each model family and quantization mode separately. |
 
+---
+
 ## Version Matrix
 
 | Component | Version or branch | Source |
@@ -168,7 +206,9 @@ is not a complete compatibility matrix.
 | Development code | `main` | Current repository branch |
 | SGLang and Kunlun runtime | Deployment-specific | Must match the current plugin branch |
 
-## Architecture
+---
+
+## Architecture 🧩
 
 ```text
 sglang-kunlun/
@@ -194,6 +234,8 @@ sglang-kunlun/
 └── NOTICE                      # Copyright and third-party notices
 ```
 
+---
+
 ## Development and Validation
 
 Run the repository tests in an environment with the required Python
@@ -214,12 +256,22 @@ environment with the relevant model, quantization mode, parallelism, and
 graph/disaggregation settings. A passing unit-test run alone does not establish
 end-to-end inference or performance correctness.
 
+---
+
 ## Contributing
 
-We welcome contributions from the community. Please read the
-[Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
+We welcome contributions from the community! Please read our
+[Contributing Guide](CONTRIBUTING.md) before submitting a PR.
 
-Recommended pull-request title prefixes are:
+### Community
+
+- 📜 [**Code of Conduct**](CODE_OF_CONDUCT.md) — All contributors are expected to follow our code of conduct
+- ✍️ [**Developer Certificate of Origin**](DCO) — Please sign off your commits with `git commit -s`; see [MAINTAINERS.md](MAINTAINERS.md) for the maintainer list
+- 🔒 [**Security Policy**](SECURITY.md) — Report security vulnerabilities privately
+
+### PR Classification
+
+Use the following prefixes for PR titles:
 
 - `[Platform]` — Platform activation and device integration
 - `[Attention]` — Attention backends and KV-cache access
@@ -234,8 +286,32 @@ Recommended pull-request title prefixes are:
 - `[CI]` — CI or packaging improvements
 - `[Misc]` — Other changes
 
+---
+
+## Star History 🔥
+
+We opened the project on Jun 2026. We love open source and collaboration ❤️
+
+<a href="https://www.star-history.com/?repos=baidu-baige/sglang-kunlun&type=date&legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=baidu-baige/sglang-kunlun&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=baidu-baige/sglang-kunlun&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=baidu-baige/sglang-kunlun&type=date&legend=top-left" />
+  </picture>
+</a>
+
+---
+
+## Sponsors 👋
+
+We sincerely appreciate the [**KunLunXin**](https://www.kunlunxin.com/) team
+for their support in providing XPU resources, which enabled efficient model
+adaptation debugging, comprehensive end-to-end testing, and broader model
+compatibility.
+
+---
+
 ## License
 
-This project is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE)
-for the full license text and [`NOTICE`](NOTICE) for copyright attribution and
-third-party software notices.
+Apache License 2.0, as found in the [LICENSE](./LICENSE) file. See
+[`NOTICE`](NOTICE) for copyright attribution and third-party software notices.
